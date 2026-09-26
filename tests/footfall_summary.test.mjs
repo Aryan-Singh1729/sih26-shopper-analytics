@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {displayClock, displaySummary} from '../footfall-web/summary.mjs';
+import {displayClock, displaySummary, nextReportingDay} from '../footfall-web/summary.mjs';
 
 const date = new Date('2026-09-26T10:00:00Z'); // 15:30 in India
 const hourly = Array.from({length: 24}, (_, hour) => ({hour, arrivals: hour === 14 ? 8 : hour === 15 ? 3 : 0}));
@@ -29,4 +29,9 @@ test('display clock uses compact 24-hour India time on narrow side card', () => 
   const result = displayClock(date);
   assert.equal(result.time, '15:30:00');
   assert.equal(result.date, 'Saturday, 26 Sept 2026');
+});
+
+test('kiosk follows today across midnight without overriding a chosen past date', () => {
+  assert.equal(nextReportingDay('2026-09-26', '2026-09-26', '2026-09-27'), '2026-09-27');
+  assert.equal(nextReportingDay('2026-09-26', '2026-09-25', '2026-09-27'), '2026-09-25');
 });

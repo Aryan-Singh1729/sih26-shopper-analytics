@@ -1,11 +1,19 @@
-import {displayClock, displaySummary} from './summary.mjs';
+import {displayClock, displaySummary, nextReportingDay} from './summary.mjs';
 const el=id=>document.getElementById(id);
 const zone='Asia/Calcutta';
 let pending=false, lastData=null;
 const dateInZone=()=>new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+let lastToday=dateInZone();
 const hourLabel=hour=>`${String(hour).padStart(2,'0')}:00`;
 if(new URLSearchParams(location.search).get('kiosk')==='1')document.documentElement.classList.add('kiosk');
 function tick(){
+  const today=dateInZone();
+  if(today!==lastToday){
+    el('day').value=nextReportingDay(lastToday,el('day').value,today);
+    el('day').max=today;
+    lastToday=today;
+    refresh();
+  }
   const clock=displayClock();
   el('clock').textContent=clock.time;
   el('clockDate').textContent=clock.date;

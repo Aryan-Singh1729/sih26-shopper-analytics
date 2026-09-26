@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "deployment"))
-from track_continuity import advance_tracks, reconcile_tracks
+from track_continuity import EmptyViewGate, advance_tracks, reconcile_tracks
 
 
 def test_refresh_keeps_existing_visit_identity():
@@ -45,3 +45,26 @@ def test_failed_visual_tracker_keeps_last_box_until_prediction_limit():
     assert held[0]["box"] == (100, 100, 80, 180)
     assert held[0]["predicted"] is True
     assert advance_tracks(old, image=None, now=3.1) == []
+
+
+def test_successful_visual_tracking_survives_detector_gap_and_keeps_visit():
+    class MovingTracker:
+        def update(self,_image):return True,(110,100,80,180)
+
+    old=[{'tracker':MovingTracker(),'box':(100,100,80,180),'confirmed':0.0,'visit_id':'first'}]
+    tracked=advance_tracks(old,image=None,now=4.0)
+    assert len(tracked)==1
+    assert tracked[0]['predicted'] is False
+    assert tracked[0]['box']==(110,100,80,180)
+    refreshed=reconcile_tracks(tracked,[{'box':(112,100,80,180),'confirmed':4.1}],now=4.2)
+    assert refreshed[0]['visit_id']=='first'
+
+
+def test_rearm_requires_two_seconds_of_fresh_empty_results():
+    gate = EmptyViewGate(2.0)
+    assert gate.observe(0.0, 1, False) is False
+    assert gate.observe(3.0, 0, True) is False
+    assert gate.observe(4.0, 0, False) is False
+    assert gate.observe(5.0, 0, True) is False
+    assert gate.observe(7.1, 0, True) is True
+    assert gate.observe(7.2, 1, False) is False

@@ -1,4 +1,5 @@
 import {MjpegParser} from '/mjpeg.mjs';
+import {LatestFrameSlot} from './latest-frame.mjs';
 const el=id=>document.getElementById(id);
 let pending=false;
 let previousTotal=null;
@@ -20,7 +21,21 @@ async function poll(){
   finally{pending=false;}
 }
 async function stream(){
-  const controller=new AbortController();let watchdog;
+  const controller=new AbortController();let watchdog,running=true;
+  const newest=new LatestFrameSlot();
+  const painter=(async()=>{
+    const canvas=el('liveCamera'),context=canvas.getContext('2d');
+    while(running){
+      await new Promise(resolve=>setTimeout(resolve,16));
+      const frame=newest.take();if(!frame)continue;
+      const bitmap=await createImageBitmap(new Blob([frame.jpeg],{type:'image/jpeg'}));
+      if(!running){bitmap.close();break;}
+      if(canvas.width!==bitmap.width)canvas.width=bitmap.width;
+      if(canvas.height!==bitmap.height)canvas.height=bitmap.height;
+      context.drawImage(bitmap,0,0);bitmap.close();
+      el('cameraState').textContent='● Live laptop-annotated camera';
+    }
+  })();
   try{
     const response=await fetch('/api/live.mjpg',{cache:'no-store',signal:controller.signal});
     if(!response.ok)throw Error('Camera unavailable');
@@ -29,14 +44,11 @@ async function stream(){
       clearTimeout(watchdog);watchdog=setTimeout(()=>controller.abort(),3000);
       const {value,done}=await reader.read();if(done)break;
       const frame=parser.push(value).at(-1);if(!frame)continue;
-      const bitmap=await createImageBitmap(new Blob([frame.jpeg],{type:'image/jpeg'}));
-      const canvas=el('liveCamera');canvas.width=bitmap.width;canvas.height=bitmap.height;
-      canvas.getContext('2d').drawImage(bitmap,0,0);bitmap.close();
-      el('cameraState').textContent='● Live laptop-annotated camera';
+      newest.push(frame);
     }
   }catch(error){el('cameraState').textContent='Camera disconnected — retrying';}
   finally{
-    clearTimeout(watchdog);controller.abort();
+    running=false;clearTimeout(watchdog);controller.abort();await painter;
     const canvas=el('liveCamera');canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
     el('visiblePeople').textContent='—';el('livePeople').textContent='CAMERA DISCONNECTED';
     setTimeout(stream,1000);

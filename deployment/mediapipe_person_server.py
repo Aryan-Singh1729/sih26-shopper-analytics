@@ -14,11 +14,11 @@ from pc_person_server import serve
 
 class MediaPipePersonModel:
     backend = 'MediaPipe EfficientDet-Lite0'
-    def __init__(self, model_path):
+    def __init__(self, model_path, confidence=.5):
         options = mp.tasks.vision.ObjectDetectorOptions(
             base_options=mp.tasks.BaseOptions(model_asset_path=str(model_path)),
             running_mode=mp.tasks.vision.RunningMode.VIDEO,
-            category_allowlist=['person'], score_threshold=.5, max_results=30)
+            category_allowlist=['person'], score_threshold=confidence, max_results=30)
         self.detector = mp.tasks.vision.ObjectDetector.create_from_options(options)
         self.lock = threading.Lock()
         self.timestamp = 0

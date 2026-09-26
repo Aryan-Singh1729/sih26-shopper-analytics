@@ -25,18 +25,33 @@ class VisualArrivals:
         self.lock=threading.Lock();self.visits=[];self.absence=absence_seconds
         self.zone=resolve_timezone('Asia/Calcutta')
 
-    def update(self,tracks,now,moment=None):
+    def update(self,tracks,now,moment=None,*,clear=False):
         moment=moment or datetime.now(timezone.utc)
         local=moment.astimezone(self.zone)
         with self.lock:
-            self.visits=[visit for visit in self.visits if now-visit['last_seen']<self.absence]
+            # A model dropout is not a departure. Only an observed clear view
+            # re-arms visits; a timer alone must never create another arrival.
+            if clear and not tracks:self.visits.clear()
             available=set(range(len(self.visits)));unmatched=set(range(len(tracks)))
+            for i,track in enumerate(tracks):
+                identifier=track.get('visit_id')
+                if not identifier:continue
+                for j in tuple(available):
+                    if self.visits[j]['id']!=identifier:continue
+                    visit=self.visits[j];visit['box']=track['box'];visit['last_seen']=now
+                    unmatched.discard(i);available.discard(j);break
             pairs=sorted([(iou(track['box'],visit['box']),i,j) for i,track in enumerate(tracks) for j,visit in enumerate(self.visits)],reverse=True)
             for score,i,j in pairs:
                 if score<.1:break
                 if i not in unmatched or j not in available:continue
                 visit=self.visits[j];visit['box']=tracks[i]['box'];visit['last_seen']=now
                 tracks[i]['visit_id']=visit['id'];unmatched.remove(i);available.remove(j)
+            # Reacquire a dormant visit conservatively before declaring a
+            # newcomer. This can defer a true arrival during an occlusion, but
+            # does not inflate footfall for a person already in the image.
+            for i,j in zip(sorted(unmatched),sorted(available)):
+                visit=self.visits[j];visit['box']=tracks[i]['box'];visit['last_seen']=now
+                tracks[i]['visit_id']=visit['id'];unmatched.remove(i)
             events=[]
             for i in sorted(unmatched):
                 identifier=str(uuid.uuid4())

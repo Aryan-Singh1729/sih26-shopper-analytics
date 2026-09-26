@@ -8,6 +8,10 @@ export function displayClock(now = new Date()) {
   };
 }
 
+export function nextReportingDay(previousToday, selectedDay, currentToday) {
+  return selectedDay === previousToday ? currentToday : selectedDay;
+}
+
 export function displaySummary(data, now = new Date()) {
   const today = new Intl.DateTimeFormat('en-CA', {timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit'}).format(now);
   const hour = Number(new Intl.DateTimeFormat('en-GB', {timeZone: zone, hour: '2-digit', hourCycle: 'h23'}).format(now));

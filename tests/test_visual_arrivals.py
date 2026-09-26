@@ -34,8 +34,21 @@ class VisualArrivalTests(unittest.TestCase):
 
     def test_departure_then_return_counts_again(self):
         self.counter.update([track()], 0)
-        self.counter.update([], 1.1)
+        self.counter.update([], 1.1, clear=True)
         self.assertEqual(len(self.counter.update([track()], 1.2)), 1)
+
+    def test_lost_box_reappearing_inside_view_does_not_count_again(self):
+        self.counter.update([track()], 0)
+        self.counter.update([], 3.5)
+        self.assertEqual(self.counter.update([track(100)], 4.0), [])
+        self.assertEqual(self.counter.connection.execute('SELECT COUNT(*) FROM visual_arrivals').fetchone()[0], 1)
+
+    def test_same_visit_id_reassociates_after_large_movement(self):
+        original = track()
+        self.counter.update([original], 0)
+        revisited = dict(track(400), visit_id=original['visit_id'])
+        self.assertEqual(self.counter.update([revisited], 2), [])
+        self.assertEqual(revisited['visit_id'], original['visit_id'])
 
     def test_group_and_additional_person(self):
         self.assertEqual(len(self.counter.update([track(), track(200)], 0)), 2)

@@ -20,7 +20,7 @@ def match_score(a, b):
 
 
 def reconcile_tracks(current, detected, now, hold_seconds=3.0):
-    old = [track for track in current if now - track['confirmed'] <= hold_seconds]
+    old = [track for track in current if now - track.get('last_visual', track['confirmed']) <= hold_seconds]
     fresh = [dict(track) for track in detected]
     pairs = []
     for old_index, track in enumerate(old):
@@ -39,3 +39,34 @@ def reconcile_tracks(current, detected, now, hold_seconds=3.0):
         used_new.add(new_index)
     retained = [track for index, track in enumerate(old) if index not in used_old and all(overlap(track['box'], item['box']) < .3 for item in fresh)]
     return fresh + retained
+
+
+def advance_tracks(tracks, image, now, hold_seconds=3.0):
+    visible = []
+    for track in tracks:
+        try:
+            ok, box = track['tracker'].update(image)
+        except Exception:
+            ok, box = False, None
+        if ok:
+            track['box'] = box
+            track['last_visual'] = now
+        elif now - track.get('last_visual', track['confirmed']) > hold_seconds:
+            continue
+        track['predicted'] = not ok
+        visible.append(track)
+    return visible
+
+
+class EmptyViewGate:
+    def __init__(self, required_seconds=2.0):
+        self.required_seconds = required_seconds
+        self.empty_since = None
+
+    def observe(self, now, visible_count, fresh_detector_empty):
+        if visible_count or not fresh_detector_empty:
+            self.empty_since = None
+            return False
+        if self.empty_since is None:
+            self.empty_since = now
+        return now - self.empty_since >= self.required_seconds
