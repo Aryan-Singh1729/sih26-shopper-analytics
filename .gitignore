@@ -6,5 +6,7 @@
 **/.pytest_cache/
 **/__pycache__/
 *.pyc
-/entrance-counter/data/
+/data/
+/models/
+/.pc-runtime/
 /entrance-counter-repair.tar.gz
