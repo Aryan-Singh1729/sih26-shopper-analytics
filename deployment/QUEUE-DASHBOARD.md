@@ -3,12 +3,14 @@
 Current demo mode is `whole_frame`: every detected person is waiting, with two
 full-height left/right counter display areas. Brief lost detections receive a
 two-second grace. Departures produce observed waiting-duration samples, not
-billing-service samples. Live average current wait and individual timers update
-while people remain visible; completed average is shown when the area clears.
+billing-service samples. Individual current timers update while people remain
+visible; the completed average updates only when an observed wait ends.
 Combined waiting is summed person-time, not elapsed wall-clock time. The four
-main cards show Counter 1 waiting, average waiting time, Counter 2 waiting,
-and the longest current wait. Service timing remains disabled until genuine
-service zones are enabled.
+main cards show Counter 1 waiting, mean completed observed waiting time,
+Counter 2 waiting, and the longest current wait. The average excludes people
+still waiting and shows no value until a wait completes; in whole-frame mode,
+completion means that person left the camera view. Service timing remains
+disabled until genuine service zones are enabled.
 The live banner uses the busiest individual counter: 0–1 normal, 2 brown, 3+ red.
 Two left and one right is brown, never red. Individual cards use their own counts.
 Displayed occupancy excludes missing tracks immediately; the two-second grace
@@ -27,8 +29,9 @@ along each line and service zones around customers at each checkout. Keep staff
 and unrelated walking paths outside them. Assignment uses the lower-center of
 each detected box; service zones take precedence. Avoid overlapping counters.
 Uncalibrated defaults disable service zones and extend waiting zones to the
-floor. Enable service zones only after marking the billing locations. A live
-longest-wait timer advances while people wait; completed average cards do not.
+floor. Enable service zones only after marking the billing locations. The live
+longest-wait timer advances while people wait; the completed average changes
+only when an observed wait ends.
 Zone changes require 0.75 seconds of stable observation to reject box jitter.
 If you move this single camera to checkout, the entrance dashboard no longer
 has a dedicated entrance view. Monitoring both locations needs another camera.

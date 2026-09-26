@@ -1,6 +1,6 @@
 export function alertLevel(count){return count>2?'red':count===2?'brown':'normal';}
 export function alertText(count){return count>2?`High queue alert · ${count} people waiting`:count===2?'Queue caution · 2 people waiting':`Live monitoring · ${count} ${count===1?'person':'people'} waiting`;}
-export function waitValue(data){return data.queue_length>0?data.average_current_wait_seconds:data.average_wait_seconds;}
+export function waitValue(data){return data.average_wait_seconds;}
 export function currentWaitingSeconds(data){return data.queue_length>0?Math.max(0,Number(data.longest_wait_seconds)||0):0;}
 export function counterWaiting(counters,index){return counters?.[index]?.waiting??0;}
 export function counterAlert(counters){

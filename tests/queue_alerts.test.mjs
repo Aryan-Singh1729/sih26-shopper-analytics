@@ -13,9 +13,10 @@ test('counter alerts never aggregate separate queues into red',()=>{
   assert.equal(counterAlert(counters(3,0)).level,'red');
   assert.match(counterAlert(counters(2,1)).text,/Left: 2 waiting/);
 });
-test('waiting average uses ongoing timers then completed visits',()=>{
-  assert.equal(waitValue({queue_length:2,average_current_wait_seconds:12,average_wait_seconds:5}),12);
+test('waiting average uses completed visits even while people are still waiting',()=>{
+  assert.equal(waitValue({queue_length:2,average_current_wait_seconds:12,average_wait_seconds:5}),5);
   assert.equal(waitValue({queue_length:0,average_current_wait_seconds:null,average_wait_seconds:5}),5);
+  assert.equal(waitValue({queue_length:1,average_current_wait_seconds:12,average_wait_seconds:null}),null);
 });
 test('current waiting card follows the longest active wait and clears with the queue',()=>{
   assert.equal(currentWaitingSeconds({queue_length:1,longest_wait_seconds:4.2}),4.2);
