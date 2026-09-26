@@ -1,5 +1,8 @@
 # Retail Entrance Counter
 
+> Historical board-only guide. See [the current overview](../README.md) and
+> [deployment notes](../deployment/FOOTFALL-DASHBOARD.md) for the active laptop dashboards.
+
 An offline, anonymous entrance-counting service for the 2 GB Arduino UNO Q.
 
 The application captures the EMEET UVC camera through the board's existing
