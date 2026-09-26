@@ -1,0 +1,19 @@
+[Unit]
+Description=Local Roboflow Inference for retail entrance counting
+Requires=docker.service
+After=docker.service mnt-retail\x2ddata.mount
+RequiresMountsFor=/mnt/retail-data
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/docker rm -f retail-roboflow-inference
+ExecStart=/usr/bin/docker run --name retail-roboflow-inference --pull never -p 127.0.0.1:9001:9001 --env-file /home/arduino/.config/retail-edge/secrets.env -e MODEL_CACHE_DIR=/tmp/cache -e ENABLE_PROMETHEUS=False -e ENABLE_STREAM_API=False -e VERSION_CHECK_MODE=disabled -v /mnt/retail-data/roboflow-cache:/tmp/cache --entrypoint uvicorn roboflow/roboflow-inference-server-arm-cpu:latest cpu_http:app --workers 1 --host 0.0.0.0 --port 9001 --no-access-log
+ExecStartPost=/usr/local/libexec/retail-wait-inference
+ExecStop=/usr/bin/docker stop -t 15 retail-roboflow-inference
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=120
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

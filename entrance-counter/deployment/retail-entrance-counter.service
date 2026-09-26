@@ -1,0 +1,22 @@
+[Unit]
+Description=Anonymous retail entrance counter
+Requires=retail-roboflow-inference.service
+After=retail-roboflow-inference.service
+
+[Service]
+Type=simple
+User=arduino
+Group=arduino
+SupplementaryGroups=video
+WorkingDirectory=/home/arduino/retail-entrance-counter
+Environment=PYTHONPATH=/home/arduino/retail-entrance-counter/src
+EnvironmentFile=/home/arduino/.config/retail-edge/secrets.env
+ExecStartPre=/usr/bin/python3 -m retail_counter --config /home/arduino/retail-entrance-counter/config.example.json --check-config
+ExecStart=/usr/bin/python3 -m retail_counter --config /home/arduino/retail-entrance-counter/config.example.json
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
+

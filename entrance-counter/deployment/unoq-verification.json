@@ -1,0 +1,43 @@
+{
+  "verified_at": "2026-09-26T07:22:29+00:00",
+  "board": {
+    "hostname": "ArduinoQ",
+    "architecture": "aarch64",
+    "ram_gib": 1.7
+  },
+  "camera": {
+    "model": "EMEET SmartCam C950",
+    "device": "/dev/video0",
+    "capture": "MJPEG 1280x720 at 30 FPS",
+    "browser_refresh_fps": 5
+  },
+  "inference": {
+    "backend": "self-hosted Roboflow Inference",
+    "server_version": "0.7.5",
+    "listen": "127.0.0.1:9001",
+    "model_id": "person-detection-euioa/1",
+    "model_type": "yolov8n",
+    "task": "object-detection",
+    "classes": ["person"],
+    "weights_sha256": "8bbf3a41b527a29811e1ca7bbfb6aa68231fe62d4bb6f96b03779f5529d094f9",
+    "cache_path": "/mnt/retail-data/roboflow-cache/person-detection-euioa/1"
+  },
+  "benchmark": {
+    "measurement_source": "post-warmup live counter metrics; rolling inference window",
+    "minimum_frames_observed": 10,
+    "p50_latency_ms": 2029.09,
+    "p95_latency_ms": 2468.81,
+    "effective_fps": 0.478,
+    "counter_process_ram_mib": 68.7,
+    "available_ram_mib": 926.7,
+    "temperature_c": 57.5,
+    "classes_observed": ["person"],
+    "live_arrivals_verified": 3
+  },
+  "security": {
+    "credential_source": "/home/arduino/.config/retail-edge/secrets.env",
+    "credential_committed": false,
+    "http_access_logging": false,
+    "temporary_frame_retained": false
+  }
+}

@@ -1,0 +1,15 @@
+[Unit]
+Description=One-shot benchmark for the retail entrance detector
+Requires=retail-roboflow-inference.service
+After=retail-roboflow-inference.service
+
+[Service]
+Type=oneshot
+User=arduino
+Group=arduino
+SupplementaryGroups=video
+WorkingDirectory=/home/arduino/retail-entrance-counter
+Environment=PYTHONPATH=/home/arduino/retail-entrance-counter/src
+EnvironmentFile=/home/arduino/.config/retail-edge/secrets.env
+ExecStart=/usr/bin/python3 -m retail_counter.benchmark --config /home/arduino/retail-entrance-counter/config.example.json --frames 10 --warmup 2
+TimeoutStartSec=300
