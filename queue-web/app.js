@@ -1,5 +1,6 @@
 import {MjpegParser} from '/mjpeg.mjs';
-import {alertLevel,counterAlert,waitValue} from './alerts.mjs';
+import {alertLevel,counterAlert,waitValue,currentWaitingSeconds,counterWaiting} from './alerts.mjs';
+if(new URLSearchParams(location.search).get('kiosk')==='1')document.documentElement.classList.add('kiosk');
 const el=id=>document.getElementById(id);let config,polling=false;
 const duration=value=>value==null?'—':value<60?`${Math.round(value)} sec`:`${(value/60).toFixed(1)} min`;
 function zones(){
@@ -35,10 +36,8 @@ async function poll(){
   if(polling)return;polling=true;
   try{const response=await fetch('/api/queue',{signal:AbortSignal.timeout(2500)});if(!response.ok)throw Error('Unavailable');const data=await response.json();
     if(!data.healthy)throw Error(data.message||'Camera unavailable · occupancy and timing paused');
-    el('waiting').textContent=data.queue_length;el('wait').textContent=duration(waitValue(data)??0);el('service').textContent=data.service_calibrated?duration(data.average_service_seconds??0):'Not configured';
-    el('waitLabel').textContent=data.queue_length>0?'Average current wait':'Average completed wait';
-    el('waitSamples').textContent=data.queue_length>0?`Live average across ${data.queue_length} people · ${data.wait_samples} completed visits`:data.mode==='whole_frame'?`${data.wait_samples} completed waiting visits (person left view)`:`${data.wait_samples} observed queue → service transitions`;el('serviceSamples').textContent=data.mode==='whole_frame'?'Disabled · no checkout/service setup':`${data.service_samples} observed service → outside transitions`;
-    el('forecast').textContent=data.forecast_queue_2min??'Warming up';el('basis').textContent=data.service_basis;
+    el('c1Waiting').textContent=counterWaiting(data.counters,0);el('c2Waiting').textContent=counterWaiting(data.counters,1);el('wait').textContent=duration(waitValue(data)??0);el('currentWait').textContent=duration(currentWaitingSeconds(data));
+    el('waitSamples').textContent=data.queue_length>0?`Live average across ${data.queue_length} people · ${data.wait_samples} completed visits`:data.mode==='whole_frame'?`${data.wait_samples} completed waiting visits (person left view)`:`${data.wait_samples} observed queue → service transitions`;
     el('liveWait').textContent=data.queue_length?`Longest current wait: ${duration(data.longest_wait_seconds)}`:'No one in the waiting zones';
     el('assignment').textContent=data.mode==='whole_frame'?`${data.visible_people} detected · ${data.queue_length} waiting. Occupancy uses visible tracks only; a 2-second grace preserves timing through short dropouts. Completed average updates when someone leaves.`:`${data.visible_people} detected · ${data.queue_length} waiting · ${data.in_service} in service · ${data.outside_people} outside zones. ${data.service_calibrated?'Completed averages update only after zone transitions.':'Service timing disabled until actual billing spots are marked and enabled.'}`;
     el('waitTotal').textContent=data.mode==='whole_frame'?`Total combined waiting: ${duration(data.total_wait_seconds)} · Average current wait: ${duration(data.average_current_wait_seconds)}`:'';
@@ -47,7 +46,7 @@ async function poll(){
     const alert=counterAlert(data.counters);
     el('status').textContent=data.stale?data.message:alert.text;el('status').classList.toggle('warning',data.stale||alert.level==='brown');el('status').classList.toggle('critical',!data.stale&&alert.level==='red');
     el('counters').replaceChildren();data.counters.forEach(c=>{const article=document.createElement('article');article.classList.add(`queue-${alertLevel(c.waiting)}`);const title=document.createElement('span');title.textContent=`${c.id} · ${c.open?'OPEN':'CLOSED'}`;const count=document.createElement('strong');count.textContent=`${c.waiting} waiting`;const detail=document.createElement('small');detail.textContent=`${c.in_service} in service · longest current wait ${duration(c.longest_wait_seconds)}`;article.append(title,count,detail);el('counters').append(article)});
-  }catch(error){el('status').textContent=error.message;el('status').classList.add('warning');el('status').classList.remove('critical');['waiting','wait','service','forecast'].forEach(id=>el(id).textContent='—');['waitSamples','serviceSamples','basis','rates','assignment'].forEach(id=>el(id).textContent='Waiting for fresh measurements');el('waitTotal').textContent='';el('peopleTimers').replaceChildren();el('liveWait').textContent='Live waiting timer paused';el('recommendation').textContent='Waiting for live measurements';el('counters').replaceChildren();}
+  }catch(error){el('status').textContent=error.message;el('status').classList.add('warning');el('status').classList.remove('critical');['c1Waiting','c2Waiting','wait','currentWait'].forEach(id=>el(id).textContent='—');['waitSamples','rates','assignment'].forEach(id=>el(id).textContent='Waiting for fresh measurements');el('waitTotal').textContent='';el('peopleTimers').replaceChildren();el('liveWait').textContent='Live waiting timer paused';el('recommendation').textContent='Waiting for live measurements';el('counters').replaceChildren();}
   finally{polling=false;}
 }
 async function stream(){const controller=new AbortController();let watchdog;

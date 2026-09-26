@@ -5,8 +5,10 @@ full-height left/right counter display areas. Brief lost detections receive a
 two-second grace. Departures produce observed waiting-duration samples, not
 billing-service samples. Live average current wait and individual timers update
 while people remain visible; completed average is shown when the area clears.
-Combined waiting is summed person-time, not elapsed wall-clock time. Service
-time explicitly says Not configured until genuine service zones are enabled.
+Combined waiting is summed person-time, not elapsed wall-clock time. The four
+main cards show Counter 1 waiting, average waiting time, Counter 2 waiting,
+and the longest current wait. Service timing remains disabled until genuine
+service zones are enabled.
 The live banner uses the busiest individual counter: 0–1 normal, 2 brown, 3+ red.
 Two left and one right is brown, never red. Individual cards use their own counts.
 Displayed occupancy excludes missing tracks immediately; the two-second grace

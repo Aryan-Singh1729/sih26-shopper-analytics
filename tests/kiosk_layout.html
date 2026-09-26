@@ -1,0 +1,52 @@
+<!doctype html>
+<html class="kiosk" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="http://127.0.0.1:8082/styles.css">
+</head>
+<body>
+  <main>
+    <header>Full dashboard header</header>
+    <section class="panel camera-panel">
+      <div class="heading"><h2>Camera heading</h2></div>
+      <div class="camera"><canvas id="camera" width="640" height="360"></canvas><svg id="zones"><rect x="10" y="10" width="40" height="80" stroke="#4ebaff" fill="#4ebaff"></rect><text x="12" y="15" fill="#7cd0ff">C1 WAITING</text></svg></div>
+      <p>Camera caption</p>
+    </section>
+    <div id="status" class="notice warning">Live monitoring</div>
+    <section class="cards">
+      <article id="first"><span>C1 People Waiting Now</span><strong>0</strong><small>Current occupancy</small></article>
+      <article id="second"><span>Average Waiting time</span><strong>4 sec</strong><small>Completed visits</small></article>
+      <article id="third"><span>C2 People Waiting Now</span><strong>0</strong><small>Current occupancy</small></article>
+      <article id="fourth"><span>Current waiting time</span><strong>12 sec</strong><small>Longest active wait</small></article>
+    </section>
+    <section class="panel">Other dashboard content</section>
+  </main>
+  <script>
+    setTimeout(() => {
+      const byId = id => document.getElementById(id).getBoundingClientRect();
+      const main = document.querySelector('main').getBoundingClientRect();
+      const camera = document.querySelector('.camera').getBoundingClientRect();
+      const status = byId('status');
+      const first = byId('first'), second = byId('second');
+      const third = byId('third'), fourth = byId('fourth');
+      const hidden = selector => getComputedStyle(document.querySelector(selector)).display === 'none';
+      const checks = {
+        camera_dominates: camera.width > innerWidth * .60 && camera.height > innerHeight * .82,
+        left_cards: first.right <= camera.left && second.right <= camera.left && second.top > first.top,
+        right_cards: third.left >= camera.right && fourth.left >= camera.right && fourth.top > third.top,
+        bottom_alert: status.top >= camera.bottom && status.width > innerWidth * .95 && status.height >= 56 && parseFloat(getComputedStyle(document.querySelector('#status')).fontSize) >= 19,
+        no_extra_chrome: hidden('main > header') && hidden('.camera-panel .heading') && hidden('.camera-panel > p') && hidden('main > .panel:not(.camera-panel)'),
+        black_counter_zones: getComputedStyle(document.querySelector('#zones rect')).stroke === 'rgb(0, 0, 0)' && getComputedStyle(document.querySelector('#zones text')).fill === 'rgb(0, 0, 0)',
+        readable_side_text: parseFloat(getComputedStyle(document.querySelector('#first span')).fontSize) >= 19 && parseFloat(getComputedStyle(document.querySelector('#third span')).fontSize) >= 19 && parseFloat(getComputedStyle(document.querySelector('#first small')).fontSize) >= 14 && parseFloat(getComputedStyle(document.querySelector('#first strong')).fontSize) >= 30,
+        counter_cards: first.querySelector('span').textContent === 'C1 People Waiting Now' && second.querySelector('span').textContent === 'Average Waiting time' && third.querySelector('span').textContent === 'C2 People Waiting Now' && fourth.querySelector('span').textContent === 'Current waiting time',
+        fits_screen: main.height <= innerHeight + 1 && main.width <= innerWidth + 1,
+      };
+      const result = document.createElement('output');
+      result.id = 'result';
+      result.textContent = JSON.stringify(checks);
+      document.body.append(result);
+    });
+  </script>
+</body>
+</html>
