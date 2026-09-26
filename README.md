@@ -54,30 +54,29 @@ files and the local Python runtime are intentionally excluded from Git.
 From the repository root, start the footfall dashboard:
 
 ```powershell
-cd entrance-counter
 python deployment/footfall_dashboard.py --port 8081
 ```
 
-In another terminal, from `entrance-counter`, start queue monitoring:
+In another terminal, from the repository root, start queue monitoring:
 
 ```powershell
 python deployment/queue_dashboard.py --port 8082
 ```
 
-The expected model location is `entrance-counter/models/person/efficientdet_lite0.tflite`.
+The expected model location is `models/person/efficientdet_lite0.tflite`.
 The board's default camera/history address is `http://10.143.116.243:8080`;
 the footfall server accepts `--board` to use a different address. Queue monitoring
 depends on the footfall server's shared video and person-track feed.
 
-See [footfall deployment notes](entrance-counter/deployment/FOOTFALL-DASHBOARD.md)
-and [queue deployment notes](entrance-counter/deployment/QUEUE-DASHBOARD.md)
+See [footfall deployment notes](deployment/FOOTFALL-DASHBOARD.md)
+and [queue deployment notes](deployment/QUEUE-DASHBOARD.md)
 for configuration and live-verification details. Both dashboards currently
 share one camera; monitoring separate entrance and checkout locations requires
 another camera.
 
 ## Tests
 
-From `entrance-counter`, with the required Python dependencies installed:
+From the repository root, with the required Python dependencies installed:
 
 ```powershell
 python -m pytest tests -q
