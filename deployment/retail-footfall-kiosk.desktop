@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=Retail Footfall Dashboard
+Comment=Full-screen local entrance monitoring
+Exec=/usr/local/bin/retail-footfall-kiosk
+Type=Application

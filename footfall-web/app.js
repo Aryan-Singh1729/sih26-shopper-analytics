@@ -1,26 +1,28 @@
+import {displayClock, displaySummary} from './summary.mjs';
 const el=id=>document.getElementById(id);
 const zone='Asia/Calcutta';
 let pending=false, lastData=null;
 const dateInZone=()=>new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const hourLabel=hour=>`${String(hour).padStart(2,'0')}:00`;
+if(new URLSearchParams(location.search).get('kiosk')==='1')document.documentElement.classList.add('kiosk');
 function tick(){
-  el('clock').textContent=new Intl.DateTimeFormat('en-IN',{timeZone:zone,hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());
-  el('clockDate').textContent=new Intl.DateTimeFormat('en-IN',{timeZone:zone,weekday:'long',day:'numeric',month:'short',year:'numeric'}).format(new Date());
+  const clock=displayClock();
+  el('clock').textContent=clock.time;
+  el('clockDate').textContent=clock.date;
   if(lastData) renderCurrent(lastData);
 }
 function renderCurrent(data){
-  const today=data.date===dateInZone();
-  const hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',hourCycle:'h23'}).format(new Date()));
-  el('current').textContent=today ? data.hourly[hour].arrivals : '—';
-  el('currentDetail').textContent=today ? `${hourLabel(hour)}–${hourLabel((hour+1)%24)} today` : 'Select today to see the current hour';
+  const summary=displaySummary(data);
+  el('current').textContent=summary.current;
+  el('currentDetail').textContent=summary.currentDetail;
 }
 function render(data){
   lastData=data;
-  el('total').textContent=data.total_arrivals;
+  const summary=displaySummary(data);
+  el('total').textContent=summary.total;
   const peaks=data.peak_hours;
-  el('peak').textContent=peaks.length ? `${hourLabel(peaks[0])}–${hourLabel((peaks[0]+1)%24)}` : 'No arrivals';
-  el('peakDetail').textContent=peaks.length ? `${data.peak_count} arrivals${peaks.length>1 ? ` · ${peaks.length} hours tied` : ''}` : 'No events for this date';
-  el('last').textContent=data.last_arrival ? new Intl.DateTimeFormat('en-IN',{timeZone:zone,hour:'2-digit',minute:'2-digit'}).format(new Date(data.last_arrival)) : '—';
+  el('peak').textContent=summary.peak;
+  el('peakDetail').textContent=summary.peakDetail;
   el('chartDate').textContent=data.date;
   const chart=el('chart'); chart.replaceChildren();
   for(const bucket of data.hourly){
