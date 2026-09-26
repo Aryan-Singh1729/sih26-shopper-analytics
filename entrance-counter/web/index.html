@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1714">
+  <title>Retail Entrance Monitor</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Intelligent Retail Analytics</p>
+        <h1>Entrance Monitor</h1>
+        <p class="subtitle">Anonymous, on-device footfall intelligence</p>
+      </div>
+      <div class="status-stack">
+        <span id="systemBadge" class="badge badge-waiting"><span class="dot"></span>Connecting</span>
+        <span id="lastUpdated" class="timestamp">Waiting for status…</span>
+      </div>
+    </header>
+
+    <section id="notice" class="notice" role="status">
+      <span class="notice-icon">i</span>
+      <div>
+        <strong id="noticeTitle">Checking system</strong>
+        <p id="noticeText">Loading the latest state from the UNO Q.</p>
+      </div>
+    </section>
+
+    <section class="camera-panel panel" aria-label="Live entrance camera">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">EMEET SmartCam C950</p>
+          <h2>Live entrance view</h2>
+        </div>
+        <span id="streamBadge" class="badge badge-waiting"><span class="dot"></span>Waiting for camera</span>
+      </div>
+      <div class="camera-frame">
+        <img id="liveFrame" alt="Live EMEET camera view" hidden>
+        <canvas id="liveCanvas" width="1280" height="720" aria-label="Continuous live camera view" hidden></canvas>
+        <div id="personBoxLayer" class="person-box-layer" aria-label="Latest person detection boxes"></div>
+        <div id="cameraPlaceholder" class="camera-placeholder">
+          <span class="camera-icon"></span>
+          <strong>Starting camera stream</strong>
+          <p>Live camera frames will appear here.</p>
+        </div>
+        <span id="livePill" class="live-pill"><span class="dot"></span>LIVE CAMERA</span>
+        <span id="detectionPill" class="detection-pill">Waiting for model</span>
+      </div>
+      <div class="camera-legend">
+        <span>Green boxes show the latest person detections; they may trail movement by a moment.</span>
+        <span id="lastDetection">No person detected yet</span>
+      </div>
+      <details class="model-preview">
+        <summary>See the latest model result and detection boxes</summary>
+        <img id="detectionFrame" alt="Most recent frame analyzed by the person detection model" hidden>
+        <p>Green boxes mark persons found in that analyzed frame. This image updates at the model's processing rate.</p>
+      </details>
+    </section>
+
+    <section class="metrics-grid" aria-label="Entrance totals">
+      <article class="metric-card accent">
+        <span class="metric-label">Arrivals today</span>
+        <strong id="entries" class="metric-value">0</strong>
+        <span class="metric-foot">One count after the view was clear</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">Persons detected now</span>
+        <strong id="personsDetected" class="metric-value">0</strong>
+        <span class="metric-foot">Latest model result</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">Best confidence</span>
+        <strong id="confidence" class="metric-value">—</strong>
+        <span class="metric-foot">Latest detected person</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">Visible tracks</span>
+        <strong id="visibleTracks" class="metric-value">0</strong>
+        <span class="metric-foot">Temporary anonymous IDs</span>
+      </article>
+    </section>
+
+    <section class="lower-grid">
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Edge performance</p>
+            <h2>Live processing</h2>
+          </div>
+          <span id="inferenceBadge" class="badge badge-waiting"><span class="dot"></span>Checking</span>
+        </div>
+        <div class="details-grid">
+          <div><span>Effective FPS</span><strong id="fps">—</strong></div>
+          <div><span>Inference p95</span><strong id="latency">—</strong></div>
+          <div><span>Process RAM</span><strong id="rss">—</strong></div>
+          <div><span>Available RAM</span><strong id="availableRam">—</strong></div>
+          <div><span>Dropped frames</span><strong id="droppedFrames">—</strong></div>
+          <div><span>Temperature</span><strong id="temperature">—</strong></div>
+        </div>
+      </article>
+
+      <article class="panel model-panel">
+        <p class="eyebrow">Detector</p>
+        <h2>Model identity</h2>
+        <dl>
+          <div><dt>Model</dt><dd id="modelId">person-detection-euioa/1</dd></div>
+          <div><dt>Model type</dt><dd id="modelType">Roboflow 3.0 Object Detection (Fast)</dd></div>
+          <div><dt>Class</dt><dd><span class="class-chip">person</span></dd></div>
+          <div><dt>Runtime</dt><dd id="modelRuntime">Local inference</dd></div>
+          <div><dt>Privacy</dt><dd>Latest camera frame held in memory</dd></div>
+        </dl>
+      </article>
+    </section>
+
+    <footer>
+      <span>Arduino UNO Q · Local processing</span>
+      <span>No face recognition · No cloud inference</span>
+    </footer>
+  </main>
+  <script type="module" src="/app.js?v=live-body-tracking-1"></script>
+</body>
+</html>
