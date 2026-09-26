@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=Retail Queue Dashboard
+Comment=Full-screen local checkout monitoring
+Exec=/usr/local/bin/retail-queue-kiosk
+Type=Application
