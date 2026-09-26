@@ -1,0 +1,60 @@
+{
+  "camera": {
+    "source": "/dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._EMEET_SmartCam_C950_A260409000103685-video-index0",
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "fourcc": "MJPG",
+    "live_fps": 15,
+    "detection_roi": [0.15, 0.12, 0.80, 0.88],
+    "full_person_edge_margin": 0.02
+  },
+  "model": {
+    "backend": "pc_onnx",
+    "base_url": "http://127.0.0.1:9010",
+    "model_id": "person-detection-euioa/1",
+    "expected_class": "person",
+    "confidence": 0.5,
+    "request_timeout_seconds": 3,
+    "jpeg_quality": 85
+  },
+  "tracking": {
+    "high_threshold": 0.5,
+    "low_threshold": 0.1,
+    "new_track_threshold": 0.55,
+    "match_iou": 0.2,
+    "low_match_iou": 0.15,
+    "track_buffer_seconds": 10,
+    "minimum_hits": 1
+  },
+  "doorway": {
+    "camera_id": "entrance-fixed-2",
+    "outside_line": [[0.15, 0.42], [0.85, 0.42]],
+    "inside_line": [[0.15, 0.58], [0.85, 0.58]],
+    "corridor_polygon": [[0.10, 0.25], [0.90, 0.25], [0.90, 0.75], [0.10, 0.75]],
+    "stable_observations": 2,
+    "maximum_crossing_seconds": 5.0,
+    "minimum_progress": 0.08,
+    "enable_entries": true,
+    "enable_exits": false,
+    "clear_observations": 3,
+    "clear_seconds": 3,
+    "clear_scene_drop": 0.05
+  },
+  "storage": {
+    "database": "/home/arduino/retail-entrance-counter/data/events.sqlite3",
+    "timezone": "Asia/Calcutta",
+    "initial_occupancy": 0
+  },
+  "runtime": {
+    "metrics_interval_seconds": 1.0,
+    "status_file": "/home/arduino/retail-entrance-counter/data/status.json",
+    "live_file": "/dev/shm/retail-edge-live.jpg",
+    "detection_file": "/dev/shm/retail-edge-detection.jpg",
+    "empty_scene_file": "/home/arduino/retail-entrance-counter/data/empty-scene.npy",
+    "scene_threshold": 0.16,
+    "frame_queue_size": 1,
+    "startup_warmup_seconds": 2.0,
+    "log_level": "INFO"
+  }
+}

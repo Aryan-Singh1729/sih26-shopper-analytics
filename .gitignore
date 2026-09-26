@@ -1,0 +1,10 @@
+# Local credentials and generated files are not project source.
+.env
+.env.*
+!.env.example
+**/secrets.env
+**/.pytest_cache/
+**/__pycache__/
+*.pyc
+/entrance-counter/data/
+/entrance-counter-repair.tar.gz

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retail-entrance-counter"
+version = "0.1.0"
+description = "Offline anonymous entrance counter for the Arduino UNO Q"
+requires-python = ">=3.11"
+dependencies = ["numpy", "Pillow"]
+
+[project.scripts]
+entrance-counter = "retail_counter.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
