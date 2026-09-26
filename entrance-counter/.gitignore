@@ -1,6 +1,0 @@
-models/
-.pc-runtime/
-__pycache__/
-*.pyc
-.env
-data/*.sqlite3*
