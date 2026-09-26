@@ -2,9 +2,9 @@
 
 Open http://localhost:8081 on this PC: camera, live full-person boxes, per-person
 arrivals and hourly footfall now share this one dashboard. The board's port
-8080 remains its internal camera/status/history source. Queue management is deferred.
+8080 remains its internal camera/status/history source. Queue monitoring is on localhost:8082.
 
-Run from the entrance-counter directory:
+Run from the repository root:
 
 ```powershell
 python deployment/footfall_dashboard.py --port 8081
